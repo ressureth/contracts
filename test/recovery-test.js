@@ -31,7 +31,7 @@ describe("Recovery", function () {
 
   it("Should store a hashed password + address to the contract", async function () {
     const HASHED_PASSWORD_ADDRESS = ethers.utils.solidityKeccak256(
-      ["string", "string"],
+      ["string", "address"],
       [PASSWORD, account2.address]
     );
     await recovery.commitLockHash(HASHED_PASSWORD_ADDRESS);
@@ -46,7 +46,9 @@ describe("Recovery", function () {
 
     await recovery.commitLockHash(HASHED_PASSWORD_ADDRESS);
     expect(
-      await recovery.connect(account2).verifyLockHash(PASSWORD)
+      await recovery
+        .connect(account2)
+        .verifyLockHash(PASSWORD, account2.address)
     ).to.be.equal(true);
   });
 
@@ -58,7 +60,9 @@ describe("Recovery", function () {
 
     await recovery.commitLockHash(HASHED_PASSWORD_ADDRESS);
     expect(
-      await recovery.connect(account1).verifyLockHash(PASSWORD)
+      await recovery
+        .connect(account1)
+        .verifyLockHash(PASSWORD, account1.address)
     ).to.be.equal(false);
   });
 
@@ -69,7 +73,7 @@ describe("Recovery", function () {
     );
 
     await recovery.commitLockHash(HASHED_PASSWORD_ADDRESS);
-    await recovery.connect(account2).claimOwnership(PASSWORD);
+    await recovery.connect(account2).claimOwnership(PASSWORD, account2.address);
     expect(await recovery.owner()).to.be.equal(account2.address);
   });
 });

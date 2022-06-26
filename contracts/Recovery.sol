@@ -24,8 +24,8 @@ contract Recovery {
         return keccak256(abi.encodePacked(password)) == hashedPassword;
     }
 
-    function verifyLockHash(string memory password) public view returns (bool) {
-      if (lockHashes[keccak256(abi.encodePacked(password, msg.sender))] != 0) {
+    function verifyLockHash(string memory password, address recipient) public view returns (bool) {
+      if (lockHashes[keccak256(abi.encodePacked(password, recipient))] != 0) {
         return true;
       }
       return false;
@@ -35,11 +35,11 @@ contract Recovery {
       lockHashes[_lockHash] = block.timestamp;
     }
 
-    function claimOwnership(string memory password) public {
+    function claimOwnership(string memory password, address recipient) public {
       require(verifyPassword(password), "password is incorrect");
-      require(verifyLockHash(password), "address has not been previously committed");
-      require(block.timestamp > lockHashes[keccak256(abi.encodePacked(password, msg.sender))], "ownership claiming cannot be on the same block as locking");
-      owner = msg.sender;
+      require(verifyLockHash(password, recipient), "address has not been previously committed");
+      require(block.timestamp > lockHashes[keccak256(abi.encodePacked(password, recipient))], "ownership claiming cannot be on the same block as locking");
+      owner = recipient;
     }
 
     function retrieveERC20() public onlyOwner {
