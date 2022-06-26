@@ -1,7 +1,7 @@
 const { expect } = require("chai");
 const { ethers } = require("hardhat");
 
-let Recovery, recovery, account1, account2;
+let Recovery, recovery, Factory, factory, account1, account2;
 const PASSWORD = "password123";
 const HASHED_PASSWORD = ethers.utils.keccak256(
   ethers.utils.toUtf8Bytes(PASSWORD)
@@ -9,9 +9,15 @@ const HASHED_PASSWORD = ethers.utils.keccak256(
 
 beforeEach(async () => {
   [account1, account2] = await ethers.getSigners();
+  Factory = await ethers.getContractFactory("Factory");
+  factory = await Factory.connect(account1).deploy();
+  await factory.deployed();
+
   Recovery = await ethers.getContractFactory("Recovery");
-  recovery = await Recovery.connect(account1).deploy(HASHED_PASSWORD);
-  await recovery.deployed();
+  await factory.connect(account1).createRecoveryContract(HASHED_PASSWORD);
+  recoveryAddress = await factory.recoveryContracts(account1.address);
+  console.log("address", recoveryAddress);
+  recovery = await Recovery.attach(recoveryAddress);
 });
 
 describe("Recovery", function () {

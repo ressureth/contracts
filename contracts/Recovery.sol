@@ -1,8 +1,6 @@
 //SPDX-License-Identifier: Unlicense
 pragma solidity ^0.8.0;
 
-import "hardhat/console.sol";
-
 contract Recovery {
     bytes32 public hashedPassword;
     mapping(bytes32 => uint256) public lockHashes;
@@ -40,15 +38,11 @@ contract Recovery {
     function claimOwnership(string memory password) public {
       require(verifyPassword(password), "password is incorrect");
       require(verifyLockHash(password), "address has not been previously committed");
-      require(block.timestamp > lockHashes[keccak256(abi.encodePacked(password, msg.sender))], "ownership claiming cannot be on the same block as locking address");
+      require(block.timestamp > lockHashes[keccak256(abi.encodePacked(password, msg.sender))], "ownership claiming cannot be on the same block as locking");
       owner = msg.sender;
     }
 
     function retrieveERC20() public onlyOwner {
         // return greeting;
     }
-
-    // function retrieveERC721() public onlyOwner {
-    //     return greeting;
-    // }
 }
